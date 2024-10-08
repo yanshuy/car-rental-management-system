@@ -3,7 +3,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class SidebarPanel extends JPanel {
-    private JButton manageCarBtn, manageCustomerBtn, manageRentalBtn;
+    private JButton manageCarBtn, manageCustomerBtn, rentCarBtn, returnCarBtn;
 
     public SidebarPanel(JFrame parent) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -15,22 +15,18 @@ public class SidebarPanel extends JPanel {
     }
     
     private void initComponents() {
-        JLabel titleLabel = new JLabel("Car Rental System");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(titleLabel);
-        add(Box.createRigidArea(new Dimension(0, 30)));
-        
         manageCarBtn = createSidebarButton("Manage Cars");
         manageCustomerBtn = createSidebarButton("Manage Customers");
-        manageRentalBtn = createSidebarButton("Manage Rentals");
+        rentCarBtn = createSidebarButton("Rent Car");
+        returnCarBtn = createSidebarButton("Return Car");
         
         add(manageCarBtn);
         add(Box.createRigidArea(new Dimension(0, 10)));
         add(manageCustomerBtn);
         add(Box.createRigidArea(new Dimension(0, 10)));
-        add(manageRentalBtn);
+        add(rentCarBtn);
+        add(Box.createRigidArea(new Dimension(0, 10)));
+        add(returnCarBtn);
     }
     
     private JButton createSidebarButton(String text) {
@@ -61,7 +57,12 @@ public class SidebarPanel extends JPanel {
         return manageCustomerBtn;
     }
     
-    public JButton getManageRentalBtn() {
-        return manageRentalBtn;
+    public JButton getRentCarBtn() {
+        return rentCarBtn;
     }
+
+    public JButton getReturnCarBtn() {
+        return returnCarBtn;
+    }
+
 }

@@ -6,7 +6,7 @@ import java.util.List;
 public class CarRentalManagementSystem extends JFrame {
     private JPanel mainPanel, contentPanel;
     private SidebarPanel sidebarPanel;
-    private JButton manageCarBtn, manageCustomerBtn, manageRentalBtn;
+    private JButton manageCarBtn, manageCustomerBtn, rentCarBtn, returnCarBtn;
     private CardLayout cardLayout;
     private List<Car> cars;
     private List<Customer> customers;
@@ -46,7 +46,8 @@ public class CarRentalManagementSystem extends JFrame {
         sidebarPanel = new SidebarPanel(this);
         manageCarBtn = sidebarPanel.getManageCarBtn();
         manageCustomerBtn = sidebarPanel.getManageCustomerBtn();
-        // manageRentalBtn = sidebarPanel.getManageRentalBtn();
+        rentCarBtn = sidebarPanel.getRentCarBtn();
+        returnCarBtn = sidebarPanel.getReturnCarBtn();
     }
     
     private void initContentPanel() {
@@ -57,11 +58,13 @@ public class CarRentalManagementSystem extends JFrame {
         
         contentPanel.add(new ManageCarPanel(cars), "MANAGE_CAR");
         contentPanel.add(new ManageCustomerPanel(customers), "MANAGE_CUSTOMER");
-        contentPanel.add(new PlaceholderPanel("Manage Rentals"), "MANAGE_RENTAL");
+        contentPanel.add(new RentCarPanel(cars, customers), "RENT_CAR");
+        contentPanel.add(new ReturnCarPanel(cars), "RETURN_CAR");
         
         manageCarBtn.addActionListener(e -> cardLayout.show(contentPanel, "MANAGE_CAR"));
         manageCustomerBtn.addActionListener(e -> cardLayout.show(contentPanel, "MANAGE_CUSTOMER"));
-        // manageRentalBtn.addActionListener(e -> cardLayout.show(contentPanel, "MANAGE_RENTAL"));
+        rentCarBtn.addActionListener(e -> cardLayout.show(contentPanel, "RENT_CAR"));
+        returnCarBtn.addActionListener(e -> cardLayout.show(contentPanel, "RETURN_CAR"));
     }
     
     public static void main(String[] args) {
