@@ -3,6 +3,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.sql.SQLException;
 
 public class ManageCarPanel extends JPanel {
     private List<Car> cars;
@@ -17,6 +18,17 @@ public class ManageCarPanel extends JPanel {
         setBorder(new EmptyBorder(30, 30, 30, 30));
         
         initComponents();
+        loadCarsFromDatabase();
+    }
+
+    private void loadCarsFromDatabase() {
+        try {
+            cars.clear();
+            cars.addAll(Car.getAllCars());
+            updateCarTable();
+        } catch (SQLException e) {
+            UIUtils.showErrorDialog(this, "Error loading cars from database: " + e.getMessage());
+        }
     }
     
     private void initComponents() {
@@ -102,12 +114,15 @@ public class ManageCarPanel extends JPanel {
         return scrollPane;
     }
     
-    private void addCar() {
+     private void addCar() {
         try {
             Car newCar = createCarFromFields();
+            newCar.save(); // Save to database
             cars.add(newCar);
             updateCarTable();
             clearFields();
+        } catch (SQLException e) {
+            UIUtils.showErrorDialog(this, "Error adding car to database: " + e.getMessage());
         } catch (NumberFormatException ex) {
             UIUtils.showErrorDialog(this, "Invalid input. Please check your entries.");
         }
@@ -118,8 +133,11 @@ public class ManageCarPanel extends JPanel {
         if (selectedRow != -1) {
             try {
                 Car updatedCar = createCarFromFields();
+                updatedCar.update(); // Update in database
                 cars.set(selectedRow, updatedCar);
                 updateCarTable();
+            } catch (SQLException e) {
+                UIUtils.showErrorDialog(this, "Error updating car in database: " + e.getMessage());
             } catch (NumberFormatException ex) {
                 UIUtils.showErrorDialog(this, "Invalid input. Please check your entries.");
             }
@@ -131,9 +149,15 @@ public class ManageCarPanel extends JPanel {
     private void removeCar() {
         int selectedRow = ((JTable) ((JScrollPane) getComponent(2)).getViewport().getView()).getSelectedRow();
         if (selectedRow != -1) {
-            cars.remove(selectedRow);
-            updateCarTable();
-            clearFields();
+            try {
+                Car car = cars.get(selectedRow);
+                car.delete(); // Delete from database
+                cars.remove(selectedRow);
+                updateCarTable();
+                clearFields();
+            } catch (SQLException e) {
+                UIUtils.showErrorDialog(this, "Error removing car from database: " + e.getMessage());
+            }
         } else {
             UIUtils.showWarningDialog(this, "Please select a car to remove.");
         }

@@ -3,19 +3,32 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.sql.SQLException;
 
 public class ManageCustomerPanel extends JPanel {
     private List<Customer> customers;
     private JTextField customerIdField, nameField, emailField, phoneField;
     private DefaultTableModel tableModel;
     
-    public ManageCustomerPanel(List<Customer> customers) {
+     public ManageCustomerPanel(List<Customer> customers) {
         this.customers = customers;
         setLayout(new BorderLayout(20, 20));
         setBackground(CarRentalManagementSystem.SECONDARY_COLOR);
         setBorder(new EmptyBorder(30, 30, 30, 30));
         
         initComponents();
+        loadCustomersFromDatabase();
+    }
+
+
+     private void loadCustomersFromDatabase() {
+        try {
+            customers.clear();
+            customers.addAll(Customer.getAllCustomers());
+            updateCustomerTable();
+        } catch (SQLException e) {
+            UIUtils.showErrorDialog(this, "Error loading customers from database: " + e.getMessage());
+        }
     }
     
     private void initComponents() {
@@ -96,18 +109,28 @@ public class ManageCustomerPanel extends JPanel {
     }
     
     private void addCustomer() {
-        Customer newCustomer = createCustomerFromFields();
-        customers.add(newCustomer);
-        updateCustomerTable();
-        clearFields();
+        try {
+            Customer newCustomer = createCustomerFromFields();
+            newCustomer.save(); // Save to database
+            customers.add(newCustomer);
+            updateCustomerTable();
+            clearFields();
+        } catch (SQLException e) {
+            UIUtils.showErrorDialog(this, "Error adding customer to database: " + e.getMessage());
+        }
     }
     
-    private void updateCustomer() {
+     private void updateCustomer() {
         int selectedRow = ((JTable) ((JScrollPane) getComponent(2)).getViewport().getView()).getSelectedRow();
         if (selectedRow != -1) {
-            Customer updatedCustomer = createCustomerFromFields();
-            customers.set(selectedRow, updatedCustomer);
-            updateCustomerTable();
+            try {
+                Customer updatedCustomer = createCustomerFromFields();
+                updatedCustomer.update(); // Update in database
+                customers.set(selectedRow, updatedCustomer);
+                updateCustomerTable();
+            } catch (SQLException e) {
+                UIUtils.showErrorDialog(this, "Error updating customer in database: " + e.getMessage());
+            }
         } else {
             UIUtils.showWarningDialog(this, "Please select a customer to update.");
         }
@@ -116,9 +139,15 @@ public class ManageCustomerPanel extends JPanel {
     private void removeCustomer() {
         int selectedRow = ((JTable) ((JScrollPane) getComponent(2)).getViewport().getView()).getSelectedRow();
         if (selectedRow != -1) {
-            customers.remove(selectedRow);
-            updateCustomerTable();
-            clearFields();
+            try {
+                Customer customer = customers.get(selectedRow);
+                customer.delete(); // Delete from database
+                customers.remove(selectedRow);
+                updateCustomerTable();
+                clearFields();
+            } catch (SQLException e) {
+                UIUtils.showErrorDialog(this, "Error removing customer from database: " + e.getMessage());
+            }
         } else {
             UIUtils.showWarningDialog(this, "Please select a customer to remove.");
         }
